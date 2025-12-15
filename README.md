@@ -36,10 +36,10 @@ The application is built using a **Containerized Microservice Architecture**, op
 
 ```mermaid
 graph TD
-    subgraph Docker_Host [Docker Container Environment]
+    subgraph Docker_Host["Docker Container Environment"]
         subgraph Services
-            API[API Gateway (FastAPI)]
-            AI[AI Processing Engine]
+            API["API Gateway - FastAPI"]
+            AI["AI Processing Engine"]
         end
 
         subgraph Data_Layer
@@ -47,16 +47,23 @@ graph TD
         end
     end
 
-    Client[Client / Camera Feed] -->|POST Group Photo| API
+    Client["Client / Camera Feed"] -->|POST Group Photo| API
     API -->|Async Processing| AI
     AI -->|Fetch Known Encodings| DB
-    AI -->|Match Faces & Log Sighting| DB
+    AI -->|Match Faces and Log Sighting| DB
 
-    subgraph Logic_Check [End of Day Process]
-        Batch[Finalize Attendance] -->|Query Sightings| DB
+    subgraph Logic_Check["End of Day Process"]
+        Batch["Finalize Attendance"] -->|Query Sightings| DB
         DB -->|Verify Start + Mid + End| Batch
         Batch -->|Write Final Status| DB
     end
+
+
+⸻
+
+📂 Project Structure
+
+The codebase follows modern Python backend conventions, clearly separating routing, business logic, and persistence layers.
 
 attendance_system/
 ├── app/
@@ -79,3 +86,102 @@ attendance_system/
 ├── docker-compose.yml        # Infrastructure orchestration
 ├── Dockerfile                # Container environment definition
 └── requirements.txt          # Python dependencies
+
+
+⸻
+
+🚀 Installation & Setup
+
+The system is fully Dockerized. No manual installation of Python, PostgreSQL, or AI libraries is required on the host machine.
+
+Prerequisites
+	•	Docker Desktop (running)
+	•	Git
+
+1. Clone the Repository
+
+git clone https://github.com/YOUR_USERNAME/attendance_system.git
+cd attendance_system
+
+2. Build and Start Services
+
+This command pulls the PostgreSQL image, builds the Python AI container, and connects all services via Docker networking.
+
+Note: The first build may take 5–10 minutes due to dlib compilation.
+
+docker compose up -d --build
+
+3. Initialize the Database
+
+Run Alembic migrations to generate the database schema.
+
+docker compose exec web alembic upgrade head
+
+4. Verify Deployment
+
+Access the interactive API documentation:
+
+👉 http://localhost:8000/docs
+
+⸻
+
+🧪 Usage Workflow
+
+Step 1: User Enrollment
+	•	Endpoint: POST /users/
+	•	Input: full_name, email, and a clear face image
+	•	Outcome: System extracts and stores the 128-D facial embedding
+
+⸻
+
+Step 2: Classroom Surveillance (3-Check Process)
+
+Upload group images during the lecture lifecycle.
+	1.	Start of Class
+	•	POST /classroom/upload-group-photo
+	•	check_type = "start"
+	2.	Middle of Class
+	•	POST /classroom/upload-group-photo
+	•	check_type = "mid"
+	3.	End of Class
+	•	POST /classroom/upload-group-photo
+	•	check_type = "end"
+
+The AI scans the entire image, identifies enrolled students, and logs individual sightings.
+
+⸻
+
+Step 3: Finalize Attendance
+	•	Endpoint: POST /classroom/finalize-day
+	•	Business Rule:
+A student is marked Present only if:
+
+COUNT(DISTINCT session_type) = 3
+
+
+
+⸻
+
+🛠️ Troubleshooting
+
+Issue: Container crash or ModuleNotFoundError
+
+docker compose logs -f web
+docker compose up -d --build
+
+Issue: Database connection failure
+
+docker compose ps
+docker compose restart
+
+
+⸻
+
+📜 Tech Stack
+	•	Language: Python 3.9
+	•	Framework: FastAPI
+	•	Computer Vision: OpenCV, dlib, face_recognition
+	•	Database: PostgreSQL 15
+	•	ORM: SQLAlchemy
+	•	Infrastructure: Docker, Docker Compose
+
