@@ -172,6 +172,3 @@ Simulate a class session by uploading group photos at three intervals.
   * **Infrastructure:** Docker & Docker Compose
 
 <!-- end list -->
-
-```
-```
