@@ -27,22 +27,22 @@ The application follows a **Containerized Microservice Architecture**.
 graph TD
     subgraph Docker_Host [Docker Container Environment]
         subgraph Services
-            API[API Gateway (FastAPI)]
-            AI[AI Processing Engine]
+            API["API Gateway (FastAPI)"]
+            AI["AI Processing Engine"]
         end
 
         subgraph Data_Layer
-            DB[(PostgreSQL)]
+            DB[("PostgreSQL")]
         end
     end
 
-    Client[Client / Camera Feed] -->|POST Group Photo| API
+    Client["Client / Camera Feed"] -->|POST Group Photo| API
     API -->|Async Processing| AI
     AI -->|Fetch Known Encodings| DB
     AI -->|Match Faces & Log Sighting| DB
     
     subgraph Logic_Check [End of Day Process]
-        Batch[Finalize Attendance] -->|Query Sightings| DB
+        Batch["Finalize Attendance"] -->|Query Sightings| DB
         DB -->|Verify Start+Mid+End| Batch
         Batch -->|Write Final Status| DB
     end
