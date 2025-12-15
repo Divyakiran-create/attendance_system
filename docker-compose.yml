@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  # 1. The Web Application (Your FastAPI Code)
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code # <--- CHANGED: Syncs the WHOLE folder, so alembic files appear
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/attendance_db
+      - REDIS_URL=redis://redis:6379/0
+
+  # 2. The Database (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=attendance_db
+    ports:
+      - "5432:5432"
+
+  # 3. Cache & Queue Broker (Redis)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
