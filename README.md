@@ -92,7 +92,7 @@ This project is fully Dockerized. You do not need to install Python, PostgreSQL,
 ### 1\. Clone the Repository
 
 ```bash
-git clone [https://github.com/YOUR_USERNAME/attendance_system.git](https://github.com/YOUR_USERNAME/attendance_system.git)
+git clone https://github.com/Divyakiran-create/attendance_system
 cd attendance_system
 ```
 
